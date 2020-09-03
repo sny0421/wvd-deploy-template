@@ -2,9 +2,50 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "location": {
+        "selectAddsType": {
             "type": "string",
-            "defaultValue": "[resourceGroup().location]"
+            "defaultValue": "New Azure ADDS",
+            "allowedValues": [
+                "New Azure ADDS",
+                "New Windows Server AD + Azure AD Connect",
+                "Exist Windows Server AD"
+            ],
+            "metadata": {
+                "description": "AD 構成を選択する"
+            }
+        },
+        "selectStorageType": {
+            "type": "string",
+            "defaultValue": "New Windows Server SMB",
+            "allowedValues": [
+                "New Windows Server SMB",
+                "Exist Windows Server SMB",
+                "New Azure NetApp Files"
+            ],
+            "metadata": {
+                "description": "ストレージ構成を選択する"
+            }
+        },
+        "enableVpnGateway": {
+            "type": "bool",
+            "defaultValue": false,
+            "metadata": {
+                "description": "Virtual Network Gateway を有効化するか"
+            }
+        },
+        "enableFireawll": {
+            "type": "bool",
+            "defaultValue": false,
+            "metadata": {
+                "description": "Azure Firewall を有効化するか"
+            }
+        },
+        "enableBastion": {
+            "type": "bool",
+            "defaultValue": false,
+            "metadata": {
+                "description": "Azure Bastion を有効化するか"
+            }
         },
         "virtualNetworkName": {
             "type": "string",
@@ -34,6 +75,13 @@
                 "description": "管理用コンポーネントを配置するサブネットのアドレス範囲"
             }
         },
+        "allowedRemoteAccessIpAddress": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "管理用にアクセスを許可する接続元 IP アドレス"
+            }
+        },
         "DesktopSubnetName": {
             "type": "string",
             "defaultValue": "DesktopSubnet",
@@ -46,13 +94,6 @@
             "defaultValue": "",
             "metadata": {
                 "description": "WVD セッションホストを配置するサブネットのアドレス範囲"
-            }
-        },
-        "AzureAddsSubnetName": {
-            "type": "string",
-            "defaultValue": "AaddsSubnet",
-            "metadata": {
-                "description": "Azure AD Domain Services を配置するサブネットの名前"
             }
         },
         "AzureAddsSubnetAddressRange": {
@@ -69,16 +110,500 @@
                 "description": "Azure Firewall を配置するサブネットのアドレス範囲(/26 以上の範囲が必要)"
             }
         },
+        "AzureBastionSubnetAddressRange": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Azure Bastion を配置するサブネットのアドレス範囲(/27 以上の範囲が必要)"
+            }
+        },
+        "AzureNetAppFilesSubnetAddressRange": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Azure NetApp Files を配置するサブネットのアドレス範囲(/27 以上の範囲が必要)"
+            }
+        },
+        "GatewaySubnetAddressRange": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Virtual Network Gateway を配置するサブネットのアドレス範囲(/27 以上の範囲が必要)"
+            }
+        },
+        "AzureAaddsDomainName": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Azure ADDS で利用するドメイン名(プレフィックスは15文字以内)"
+            }
+        },
+        "AzureAddsSku": {
+            "type": "string",
+            "defaultValue": "",
+            "allowedValues": [
+                "Standard",
+                "Enterprise",
+                "Premium"
+            ],
+            "metadata": {
+                "description": "AD 構成を選択する"
+            }
+        },
+        "addsVmNamePrefix": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "ADDS VM の名前プレフィックス"
+            }
+        },
+        "addsVmOsVersion": {
+            "type": "string",
+            "defaultValue": "Windows Server 2019",
+            "allowedValues": [
+                "Windows Server 2019",
+                "Windows Server 2016"
+            ],
+            "metadata": {
+                "description": ""
+            }
+        },
+        "addsVmRedundancy": {
+            "type": "bool",
+            "defaultValue": "false",
+            "metadata": {
+                "description": "ADDS VM を冗長化するか"
+            }
+        },
+        "addsVmDiskType": {
+            "type": "string",
+            "defaultValue": "Standard SSD",
+            "allowedValues": [
+                "Standard HDD",
+                "Standard SSD",
+                "Premuim SSD"
+            ],
+            "metadata": {
+                "description": ""
+            }
+        },
+        "addsVmLocalAdminUserName": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "ADDS VM のローカル管理者ユーザーの名前"
+            }
+        },
+        "addsVmLocalAdminPassword": {
+            "type": "securestring",
+            "defaultValue": "",
+            "metadata": {
+                "description": "ADDS VM のローカル管理者ユーザーのパスワード"
+            }
+        },
+        "aadcVmNamePrefix": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "AADC VM の名前プレフィックス"
+            }
+        },
+        "aadcVmOsVersion": {
+            "type": "string",
+            "defaultValue": "Windows Server 2019",
+            "allowedValues": [
+                "Windows Server 2019",
+                "Windows Server 2016"
+            ],
+            "metadata": {
+                "description": ""
+            }
+        },
+        "aadcVmRedundancy": {
+            "type": "bool",
+            "defaultValue": "false",
+            "metadata": {
+                "description": "AADC VM を冗長化するか"
+            }
+        },
+        "aadcVmDiskType": {
+            "type": "string",
+            "defaultValue": "Standard SSD",
+            "allowedValues": [
+                "Standard HDD",
+                "Standard SSD",
+                "Premuim SSD"
+            ],
+            "metadata": {
+                "description": ""
+            }
+        },
+        "aadcVmLocalAdminUserName": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "AADC VM のローカル管理者ユーザーの名前"
+            }
+        },
+        "aadcVmLocalAdminPassword": {
+            "type": "securestring",
+            "defaultValue": "",
+            "metadata": {
+                "description": "AADC VM のローカル管理者ユーザーのパスワード"
+            }
+        },
+        "existAddsIpAddress": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "既存 AD の IP アドレス"
+            }
+        },
+        "vpnGatewayName": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": ""
+            }
+        },
+        "vpnGatewaySku": {
+            "type": "string",
+            "defaultValue": "VpnGw1",
+            "allowedValues": [
+                "VpnGw1",
+                "VpnGw2",
+                "VpnGw3",
+                "VpnGw4",
+                "VpnGw5"
+            ],
+            "metadata": {
+                "description": ""
+            }
+        },
+        "vpnGatewayRedundancy": {
+            "type": "bool",
+            "defaultValue": "false",
+            "metadata": {
+                "description": ""
+            }
+        },
+        "vpnGatewayEnableBgp": {
+            "type": "bool",
+            "defaultValue": "false",
+            "metadata": {
+                "description": ""
+            }
+        },
+        "vpnGatewayBgpAsn": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": ""
+            }
+        },
+        "localGatewayName": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": ""
+            }
+        },
+        "localGatewayGlobalIpAddress": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": ""
+            }
+        },
+        "localGatewayPreSharedKey": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": ""
+            }
+        },
+        "localGatewayPrivateIpRange": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": ""
+            }
+        },
+        "localGatewayEnableBgp": {
+            "type": "bool",
+            "defaultValue": "false",
+            "metadata": {
+                "description": ""
+            }
+        },
+        "localGatewayBgpAsn": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": ""
+            }
+        },
+        "AzureBastionName": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": ""
+            }
+        },
+        "AzureFirewallName": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": ""
+            }
+        },
+        "smbVmNamePrefix": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "AADC VM の名前プレフィックス"
+            }
+        },
+        "smbVmOsVersion": {
+            "type": "string",
+            "defaultValue": "Windows Server 2019",
+            "allowedValues": [
+                "Windows Server 2019",
+                "Windows Server 2016"
+            ],
+            "metadata": {
+                "description": ""
+            }
+        },
+        "smbVmRedundancy": {
+            "type": "bool",
+            "defaultValue": "false",
+            "metadata": {
+                "description": "AADC VM を冗長化するか"
+            }
+        },
+        "smbVmDiskType": {
+            "type": "string",
+            "defaultValue": "Standard SSD",
+            "allowedValues": [
+                "Standard HDD",
+                "Standard SSD",
+                "Premuim SSD"
+            ],
+            "metadata": {
+                "description": ""
+            }
+        },
+        "smbVmDataDiskSize": {
+            "type": "int",
+            "defaultValue": 128,
+            "metadata": {
+                "description": ""
+            }
+        },
+        "smbVmLocalAdminUserName": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "SMB VM のローカル管理者ユーザーの名前"
+            }
+        },
+        "smbVmLocalAdminPassword": {
+            "type": "securestring",
+            "defaultValue": "",
+            "metadata": {
+                "description": "SMB VM のローカル管理者ユーザーのパスワード"
+            }
+        },
         "_artifactsLocation": {
+            "type": "securestring",
+            "defaultValue": "https://raw.githubusercontent.com/sny0421/wvd-deploy-template/master/",
+            "metadata": {
+                "description": "このテンプレートに必要なアーティファクトのベース URI"
+            }
+        },
+        "_artifactsLocationSasToken": {
             "type": "string",
             "defaultValue": "https://raw.githubusercontent.com/sny0421/wvd-deploy-template/master/",
             "metadata": {
                 "description": "このテンプレートに必要なアーティファクトのベース URI"
             }
-        }
-    },
+        }    },
     "functions": [],
     "variables": {},
-    "resources": [],
+    "resources": [
+        {
+            "name": "LinkedNetworkTemplate",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(parameters('_artifactsLocation'), '/linkedTemplates/linkedNetworkTemplate.json', parameters('_artifactsLocationSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "virtualNetworkName": { "value": "[parameters('virtualNetworkName')]" },
+                    "virtualNetworkAddressSpace": { "value": "[parameters('virtualNetworkAddressSpace')]" },
+                    "ManagementSubnetName": { "value": "[parameters('ManagementSubnetName')]" },
+                    "ManagementSubnetAddressRange": { "value": "[parameters('ManagementSubnetAddressRange')]" },
+                    "allowedRemoteAccessIpAddress": { "value": "[parameters('allowedRemoteAccessIpAddress')]" },
+                    "DesktopSubnetName": { "value": "[parameters('DesktopSubnetName')]" },
+                    "DesktopSubnetAddressRange": { "value": "[parameters('DesktopSubnetAddressRange')]" }
+                }
+            }
+        },
+        {
+            "name": "LinkedVpnGatewayTemplate",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "condition": "[parameters('enableVpnGateway')]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(parameters('_artifactsLocation'), '/linkedTemplates/linkedVpnGatewayTemplate.json', parameters('_artifactsLocationSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "virtualNetworkName": { "value": "[parameters('virtualNetworkName')]" },
+                    "GatewaySubnetAddressRange": {"value": "[parameters('GatewaySubnetAddressRange')]"},
+                    "vpnGatewayName": {"value": "[parameters('vpnGatewayName')]"},
+                    "vpnGatewaySku": {"value": "[parameters('vpnGatewaySku')]"},
+                    "vpnGatewayRedundancy": {"value": "[parameters('vpnGatewayRedundancy')]"},
+                    "vpnGatewayEnableBgp": {"value": "[parameters('vpnGatewayEnableBgp')]"},
+                    "vpnGatewayBgpAsn": {"value": "[parameters('vpnGatewayBgpAsn')]"},
+                    "localGatewayName": {"value": "[parameters('localGatewayName')]"},
+                    "localGatewayGlobalIpAddress": {"value": "[parameters('localGatewayGlobalIpAddress')]"},
+                    "localGatewayPreSharedKey": {"value": "[parameters('localGatewayPreSharedKey')]"},
+                    "localGatewayPrivateIpRange": {"value": "[parameters('localGatewayPrivateIpRange')]"},
+                    "localGatewayEnableBgp": {"value": "[parameters('localGatewayEnableBgp')]"},
+                    "localGatewayBgpAsn": {"value": "[parameters('localGatewayBgpAsn')]"}
+                }
+            },
+            "dependsOn": [
+                "LinkedNetworkTemplate"
+            ]
+        },
+        {
+            "name": "LinkedAzureFirewallTemplate",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "condition": "[parameters('enableFireawll')]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(parameters('_artifactsLocation'), '/linkedTemplates/linkedAzureFirewallTemplate.json', parameters('_artifactsLocationSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "virtualNetworkName": { "value": "[parameters('virtualNetworkName')]" },
+                    "AzureFirewallName": { "value": "[parameters('AzureFirewallName')]" },
+                    "AzureFirewallSubnetAddressRange": { "value": "[parameters('AzureFirewallSubnetAddressRange')]" }
+                }
+            },
+            "dependsOn": [
+                "LinkedNetworkTemplate"
+            ]
+        },
+        {
+            "name": "LinkedAzureBastionTemplate",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "condition": "[parameters('enableBastion')]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(parameters('_artifactsLocation'), '/linkedTemplates/linkedAzureBastionTemplate.json', parameters('_artifactsLocationSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "virtualNetworkName": { "value": "[parameters('virtualNetworkName')]" },
+                    "AzureBastionName": { "value": "[parameters('AzureBastionName')]" },
+                    "AzureBastionSubnetAddressRange": { "value": "[parameters('AzureBastionSubnetAddressRange')]" }
+                }
+            },
+            "dependsOn": [
+                "LinkedNetworkTemplate"
+            ]
+        },
+        {
+            "name": "LinkedWindowsServerAddsTemplate",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "condition": "[equals(parameters('selectAddsType'), 'New Windows Server AD + Azure AD Connect')]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(parameters('_artifactsLocation'), '/linkedTemplates/linkedWindowsServerAddsTemplate.json', parameters('_artifactsLocationSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                }
+            },
+            "dependsOn": [
+                "LinkedVpnGatewayTemplate",
+                "LinkedAzureBastionTemplate",
+                "LinkedAzureFirewallTemplate"
+            ]
+        },
+        {
+            "name": "LinkedAzureAddsTemplate",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "condition": "[equals(parameters('selectAddsType'), 'New Azure ADDS')]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(parameters('_artifactsLocation'), '/linkedTemplates/linkedAzureAddsTemplate.json', parameters('_artifactsLocationSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                }
+            },
+            "dependsOn": [
+                "LinkedVpnGatewayTemplate",
+                "LinkedAzureBastionTemplate",
+                "LinkedAzureFirewallTemplate"
+            ]
+        },
+        {
+            "name": "LinkedWindowsServerSmbTemplate",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "condition": "[equals(parameters('selectStorageType'), 'New Windows Server SMB')]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(parameters('_artifactsLocation'), '/linkedTemplates/linkedWindowsServerSmbTemplate.json', parameters('_artifactsLocationSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                }
+            },
+            "dependsOn": [
+                "LinkedAzureAddsTemplate",
+                "LinkedWindowsServerAddsTemplate"
+            ]
+        },
+        {
+            "name": "LinkedAzureFNetAppFilesTemplate",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "condition": "[equals(parameters('selectStorageType'), 'New Azure NetApp Files')]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(parameters('_artifactsLocation'), '/linkedTemplates/linkedAzureNetAppFilesTemplate.json', parameters('_artifactsLocationSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                }
+            },
+            "dependsOn": [
+                "LinkedAzureAddsTemplate",
+                "LinkedWindowsServerAddsTemplate"
+            ]
+        }
+    ],
     "outputs": {}
 }

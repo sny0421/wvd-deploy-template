@@ -1,0 +1,403 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "virtualNetworkName": {
+            "type": "string"
+        },
+        "AzureFirewallName": {
+            "type": "string"
+        },
+        "AzureFirewallSubnetAddressRange": {
+            "type": "string"
+        }
+    },
+    "variables": {
+        "firewallSubnetName": "[concat(parameters('virtualNetworkName'),'/AzureFirewallSubnet')]",
+        "firewallIpAddressName": "[concat(parameters('AzureFirewallName'),'-pip')]"
+    },
+    "resources": [
+        {
+            "name": "[variables('firewallSubnetName')]",
+            "type": "Microsoft.Network/virtualNetworks/subnets",
+            "apiVersion": "2020-05-01",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "addressPrefix": "[parameters('AzureFirewallSubnetAddressRange')]"
+            }
+        },
+        {
+            "name": "[variables('firewallIpAddressName')]",
+            "type": "Microsoft.Network/publicIPAddresses",
+            "apiVersion": "2020-05-01",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "displayName": "[variables('firewallIpAddressName')]"
+            },
+            "sku": {
+                "name": "Standard"
+            },
+            "properties": {
+                "publicIPAllocationMethod": "Static",
+                "dnsSettings": {
+                    "domainNameLabel": "[concat(toLower(variables('firewallIpAddressName')), uniqueString(resourceGroup().id))]"
+                }
+            }
+        },
+        {
+            "name": "[parameters('AzureFirewallName')]",
+            "type": "Microsoft.Network/azureFirewalls",
+            "apiVersion": "2020-05-01",
+            "location": "[resourceGroup().location]",
+            "tags": {},
+            "properties": {
+               "applicationRuleCollections": [
+                   {
+                       "name": "WVD-Required-AP-Rules",
+                       "properties": {
+                           "priority": 100,
+                           "action": {
+                               "type": "Allow"
+                           },
+                           "rules": [
+                               {
+                                   "name": "wvd-microsoft-com",
+                                   "description": "サービス トラフィック",
+                                   "sourceAddresses": [
+                                       "*"
+                                   ],
+                                   "protocols": [
+                                      {
+                                          "protocolType": "Https",
+                                          "port": 443
+                                      }
+                                   ],
+                                   "targetFqdns": [
+                                       "*.wvd.microsoft.com"
+                                   ],
+                                   "fqdnTags": []
+                               },
+                               {
+                                   "name": "mrsglobalsteus2prod-blob-core-windows-net",
+                                   "description": "エージェントと SXS スタックの更新",
+                                   "sourceAddresses": [
+                                       "*"
+                                   ],
+                                   "protocols": [
+                                      {
+                                          "protocolType": "Https",
+                                          "port": 443
+                                      }
+                                   ],
+                                   "targetFqdns": [
+                                       "mrsglobalsteus2prod.blob.core.windows.net"
+                                   ],
+                                   "fqdnTags": []
+                               },
+                               {
+                                   "name": "core-windows-net",
+                                   "description": "エージェント トラフィック",
+                                   "sourceAddresses": [
+                                       "*"
+                                   ],
+                                   "protocols": [
+                                      {
+                                          "protocolType": "Https",
+                                          "port": 443
+                                      }
+                                   ],
+                                   "targetFqdns": [
+                                       "*.core.windows.net"
+                                   ],
+                                   "fqdnTags": []
+                               },
+                               {
+                                   "name": "servicebus-windows-net",
+                                   "description": "エージェント トラフィック",
+                                   "sourceAddresses": [
+                                       "*"
+                                   ],
+                                   "protocols": [
+                                      {
+                                          "protocolType": "Https",
+                                          "port": 443
+                                      }
+                                   ],
+                                   "targetFqdns": [
+                                       "*.servicebus.windows.net"
+                                   ],
+                                   "fqdnTags": []
+                               },
+                               {
+                                   "name": "gcs-prod-monitoring",
+                                   "description": "エージェント トラフィック",
+                                   "sourceAddresses": [
+                                       "*"
+                                   ],
+                                   "protocols": [
+                                      {
+                                          "protocolType": "Https",
+                                          "port": 443
+                                      }
+                                   ],
+                                   "targetFqdns": [
+                                       "gcs.prod.monitoring.core.windows.net"
+                                   ],
+                                   "fqdnTags": []
+                               },
+                               {
+                                   "name": "wvd-microsoft-com",
+                                   "description": "サービス トラフィック",
+                                   "sourceAddresses": [
+                                       "*"
+                                   ],
+                                   "protocols": [
+                                      {
+                                          "protocolType": "Https",
+                                          "port": 443
+                                      }
+                                   ],
+                                   "targetFqdns": [
+                                       "*.wvd.microsoft.com"
+                                   ],
+                                   "fqdnTags": []
+                               },
+                               {
+                                   "name": "catalogartifact",
+                                   "description": "Azure Marketplace",
+                                   "sourceAddresses": [
+                                       "*"
+                                   ],
+                                   "protocols": [
+                                      {
+                                          "protocolType": "Https",
+                                          "port": 443
+                                      }
+                                   ],
+                                   "targetFqdns": [
+                                       "catalogartifact.azureedge.net"
+                                   ],
+                                   "fqdnTags": []
+                               },
+                               {
+                                   "name": "wvdportalstorageblob",
+                                   "description": "Azure portal のサポート",
+                                   "sourceAddresses": [
+                                       "*"
+                                   ],
+                                   "protocols": [
+                                      {
+                                          "protocolType": "Https",
+                                          "port": 443
+                                      }
+                                   ],
+                                   "targetFqdns": [
+                                       "wvdportalstorageblob.blob.core.windows.net"
+                                   ],
+                                   "fqdnTags": []
+                               },
+                               {
+                                   "name": "microsoftonline-com",
+                                   "description": "Microsoft オンライン サービスへの認証",
+                                   "sourceAddresses": [
+                                       "*"
+                                   ],
+                                   "protocols": [
+                                      {
+                                          "protocolType": "Https",
+                                          "port": 443
+                                      }
+                                   ],
+                                   "targetFqdns": [
+                                       "*.microsoftonline.com"
+                                   ],
+                                   "fqdnTags": []
+                               },
+                               {
+                                   "name": "events-data-microsoft-com",
+                                   "description": "テレメトリ サービス",
+                                   "sourceAddresses": [
+                                       "*"
+                                   ],
+                                   "protocols": [
+                                      {
+                                          "protocolType": "Https",
+                                          "port": 443
+                                      }
+                                   ],
+                                   "targetFqdns": [
+                                       "*.events.data.microsoft.com"
+                                   ],
+                                   "fqdnTags": []
+                               },
+                               {
+                                   "name": "msftconnecttest-com",
+                                   "description": "OS がインターネットに接続されているかどうかの検出",
+                                   "sourceAddresses": [
+                                       "*"
+                                   ],
+                                   "protocols": [
+                                      {
+                                          "protocolType": "Https",
+                                          "port": 443
+                                      }
+                                   ],
+                                   "targetFqdns": [
+                                       "www.msftconnecttest.com"
+                                   ],
+                                   "fqdnTags": []
+                               },
+                               {
+                                   "name": "prod-do-dsp-mp-microsoft-com",
+                                   "description": "Windows Update",
+                                   "sourceAddresses": [
+                                       "*"
+                                   ],
+                                   "protocols": [
+                                      {
+                                          "protocolType": "Https",
+                                          "port": 443
+                                      }
+                                   ],
+                                   "targetFqdns": [
+                                       "*.prod.do.dsp.mp.microsoft.com"
+                                   ],
+                                   "fqdnTags": []
+                               },
+                               {
+                                   "name": "login-windows-net",
+                                   "description": "Microsoft Online Services、Microsoft 365 へのサインイン",
+                                   "sourceAddresses": [
+                                       "*"
+                                   ],
+                                   "protocols": [
+                                      {
+                                          "protocolType": "Https",
+                                          "port": 443
+                                      }
+                                   ],
+                                   "targetFqdns": [
+                                       "login.windows.net"
+                                   ],
+                                   "fqdnTags": []
+                               },
+                               {
+                                   "name": "sfx-ms",
+                                   "description": "OneDrive クライアント ソフトウェアの更新",
+                                   "sourceAddresses": [
+                                       "*"
+                                   ],
+                                   "protocols": [
+                                      {
+                                          "protocolType": "Https",
+                                          "port": 443
+                                      }
+                                   ],
+                                   "targetFqdns": [
+                                       "*.sfx.ms"
+                                   ],
+                                   "fqdnTags": []
+                               },
+                               {
+                                   "name": "digicert-com",
+                                   "description": "証明書失効の確認",
+                                   "sourceAddresses": [
+                                       "*"
+                                   ],
+                                   "protocols": [
+                                      {
+                                          "protocolType": "Https",
+                                          "port": 443
+                                      }
+                                   ],
+                                   "targetFqdns": [
+                                       "*.digicert.com"
+                                   ],
+                                   "fqdnTags": []
+                               }
+                           ]
+                       }
+                   }
+                ],
+               "networkRuleCollections": [
+                   {
+                      "name": "WVD-Required-NW-Rules",
+                       "properties": {
+                           "priority": 100,
+                           "action": {
+                              "type": "Deny"
+                           },
+                           "rules": [
+                              {
+                                  "name": "Azure-KMS",
+                                  "description": "Azure KMS Server(kms.core.windows.net:1688)",
+                                  "sourceAddresses": [
+                                     "*"
+                                  ],
+                                  "destinationAddresses": [
+                                      "23.102.135.246"
+                                  ],
+                                  "destinationPorts": [
+                                      "1688"
+                                  ],
+                                  "protocols": [
+                                      "TCP"
+                                  ]
+                              },
+                              {
+                                  "name": "Azure-IMS",
+                                  "description": "Azure Instance Metadata Service エンドポイント",
+                                  "sourceAddresses": [
+                                     "*"
+                                  ],
+                                  "destinationAddresses": [
+                                      "169.254.169.254"
+                                  ],
+                                  "destinationPorts": [
+                                      "80"
+                                  ],
+                                  "protocols": [
+                                      "TCP"
+                                  ]
+                              },
+                              {
+                                  "name": "SessionHost-Health-Check",
+                                  "description": "セッション ホストの正常性の監視",
+                                  "sourceAddresses": [
+                                     "*"
+                                  ],
+                                  "destinationAddresses": [
+                                      "168.63.129.16"
+                                  ],
+                                  "destinationPorts": [
+                                      "1688"
+                                  ],
+                                  "protocols": [
+                                      "TCP"
+                                  ]
+                              }
+                           ]
+                       }
+                   }
+                ],
+               "ipConfigurations": [
+                   {
+                       "name": "ipConfigName",
+                       "properties": {
+                           "subnet": {
+                               "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), 'AzureFirewallSubnet')]"
+                           },
+                           "publicIPAddress": {
+                               "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('firewallIpAddressName'))]"
+                           }
+                       }
+                   }
+               ]
+             },
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/publicIPAddresses', variables('firewallIpAddressName'))]"
+            ]
+        }
+    ],
+    "outputs": {}
+}

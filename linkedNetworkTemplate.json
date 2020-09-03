@@ -1,0 +1,95 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "virtualNetworkName": {
+            "type": "string"
+        },
+        "virtualNetworkAddressSpace": {
+            "type": "string"
+        },
+        "ManagementSubnetName": {
+            "type": "string"
+        },
+        "ManagementSubnetAddressRange": {
+            "type": "string"
+        },
+        "allowedRemoteAccessIpAddress": {
+            "type": "string"
+        },
+        "DesktopSubnetName": {
+            "type": "string"
+        },
+        "DesktopSubnetAddressRange": {
+            "type": "string"
+        }
+    },
+    "functions": [],
+    "variables": {
+        "managemrntSubnetNsgName": "[concat(parameters('virtualNetworkName'), '-management-nsg')]"
+    },
+    "resources": [
+        {
+            "name": "[variables('managemrntSubnetNsgName')]",
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2020-05-01",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "AllowRemoteManagementAccess",
+                        "properties": {
+                            "description": "Allow Remote Management Access (RDP, SSH).",
+                            "protocol": "Tcp",
+                            "sourcePortRange": "*",
+                            "destinationPortRanges": [
+                                "22",
+                                "3389"
+                            ],
+                            "sourceAddressPrefix": "[parameters('allowedRemoteAccessIpAddress')]",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 1000,
+                            "direction": "Inbound"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "[parameters('virtualNetworkName')]",
+            "type": "Microsoft.Network/virtualNetworks",
+            "apiVersion": "2020-05-01",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "displayName": "[parameters('virtualNetworkName')]"
+            },
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "[parameters('virtualNetworkAddressSpace')]"
+                    ]
+                },
+                "subnets": [
+                    {
+                        "name": "[parameters('ManagementSubnetName')]",
+                        "properties": {
+                            "addressPrefix": "[parameters('ManagementSubnetAddressRange')]"
+                        },
+                        "networkSecurityGroup": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('managemrntSubnetNsgName'))]"
+                    },
+                    {
+                        "name": "[parameters('DesktopSubnetName')]",
+                        "properties": {
+                            "addressPrefix": "[parameters('DesktopSubnetAddressRange')]"
+                        }
+                    }
+                ]
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', variables('managemrntSubnetNsgName'))]"
+            ]
+        }
+    ],
+    "outputs": {}
+}
