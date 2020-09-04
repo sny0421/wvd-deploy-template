@@ -1,0 +1,151 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "virtualNetworkName": {
+            "type": "string"
+        },
+        "addsVmNamePrefix": {
+            "type": "string"
+        },
+        "addsVmOsVersion": {
+            "type": "string"
+        },
+        "addsVmRedundancy": {
+            "type": "bool"
+        },
+        "addsVmDiskType": {
+            "type": "string"
+        },
+        "addsVmLocalAdminUserName": {
+            "type": "string"
+        },
+        "addsVmLocalAdminPassword": {
+            "type": "securestring"
+        },
+        "aadcVmNamePrefix": {
+            "type": "string"
+        },
+        "aadcVmOsVersion": {
+            "type": "string"
+        },
+        "aadcVmRedundancy": {
+            "type": "bool"
+        },
+        "aadcVmDiskType": {
+            "type": "string"
+        },
+        "aadcVmLocalAdminUserName": {
+            "type": "string"
+        },
+        "aadcVmLocalAdminPassword": {
+            "type": "securestring"
+        }
+    },
+    "functions": [],
+    "variables": {
+        "addsPublicAddressName": "[concat(parameters('addsVmNamePrefix'),'-pip')]",
+        "addsNetworkInterfaceName": "[concat(parameters('addsVmNamePrefix'),'-nic')]",
+        "addsOsDiskName": "[concat(parameters('addsVmNamePrefix'),'_OSDisk')]",
+        "addsDataDiskName": "[concat(parameters('addsVmNamePrefix'),'_DataDisk_0')]",
+        "aadcPublicAddressName": "[concat(parameters('aadcVmNamePrefix'),'-pip')]",
+        "aadcNetworkInterfaceName": "[concat(parameters('aadcVmNamePrefix'),'-nic')]",
+        "aadcOsDiskName": "[concat(parameters('aadcVmNamePrefix'),'_OSDisk')]"
+    },
+    "resources": [
+        {
+            "name": "[variables('addsPublicAddressName')]",
+            "type": "Microsoft.Network/publicIPAddresses",
+            "apiVersion": "2020-05-01",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "displayName": "PublicIPAddress"
+            },
+            "properties": {
+                "publicIPAllocationMethod": "Dynamic",
+                "dnsSettings": {
+                    "domainNameLabel": "[toLower(parameters('addsVmNamePrefix'))]"
+                }
+            }
+        },
+        {
+            "name": "[variables('addsNetworkInterfaceName')]",
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2020-05-01",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/publicIPAddresses', variables('addsPublicAddressName'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
+            ],
+            "tags": {
+                "displayName": "parameters('addsVmNamePrefix') Network Interface"
+            },
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipConfig1",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "publicIPAddress": {
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('addsPublicAddressName'))]"
+                            },
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), 'DesktopSubnet')]"
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "[parameters('addsVmNamePrefix')]",
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2020-05-01",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkInterfaces', variables('addsNetworkInterfaceName'))]"
+            ],
+            "tags": {
+                "displayName": "[parameters('addsVmNamePrefix')]"
+            },
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "Standard_A2"
+                },
+                "osProfile": {
+                    "computerName": "[parameters('addsVmNamePrefix')]",
+                    "adminUsername": "[parameters('addsVmLocalAdminUserName')]",
+                    "adminPassword": "[parameters('addsVmLocalAdminPassword')]"
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "MicrosoftWindowsServer",
+                        "offer": "WindowsServer",
+                        "sku": "2019-Datacenter",
+                        "version": "latest"
+                    },
+                    "osDisk": {
+                        "name": "[variables('addsOsDiskName')]",
+                        "caching": "ReadWrite",
+                        "createOption": "FromImage"
+                    },
+                    "DataDisks": [
+                        {
+                            "name": "[variables('addsDataDiskName')]",
+                            "diskSizeGB": 8,
+                            "createOption": "Empty"
+                        }
+                    ]
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('addsNetworkInterfaceName'))]"
+                        }
+                    ]
+                }
+            }
+        }
+    ],
+    "outputs": {}
+}

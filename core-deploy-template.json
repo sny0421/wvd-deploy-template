@@ -538,6 +538,19 @@
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
+                    "virtualNetworkName": { "value": "[parameters('virtualNetworkName')]" },
+                    "addsVmNamePrefix": { "value": "[parameters('addsVmNamePrefix')]" },
+                    "addsVmOsVersion": { "value": "[parameters('addsVmOsVersion')]" },
+                    "addsVmRedundancy": { "value": "[parameters('addsVmRedundancy')]" },
+                    "addsVmDiskType": { "value": "[parameters('addsVmDiskType')]" },
+                    "addsVmLocalAdminUserName": { "value": "[parameters('addsVmLocalAdminUserName')]" },
+                    "addsVmLocalAdminPassword": { "value": "[parameters('addsVmLocalAdminPassword')]" },
+                    "aadcVmNamePrefix": { "value": "[parameters('aadcVmNamePrefix')]" },
+                    "aadcVmOsVersion": { "value": "[parameters('aadcVmOsVersion')]" },
+                    "aadcVmRedundancy": { "value": "[parameters('aadcVmRedundancy')]" },
+                    "aadcVmDiskType": { "value": "[parameters('aadcVmDiskType')]" },
+                    "aadcVmLocalAdminUserName": { "value": "[parameters('aadcVmLocalAdminUserName')]" },
+                    "aadcVmLocalAdminPassword": { "value": "[parameters('aadcVmLocalAdminPassword')]" }
                 }
             },
             "dependsOn": [

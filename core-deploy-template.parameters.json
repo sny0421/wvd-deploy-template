@@ -1,0 +1,168 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "selectAddsType": {
+            "value": "New Azure ADDS"
+        },
+        "selectStorageType": {
+            "value": "New Windows Server SMB"
+        },
+        "enableVpnGateway": {
+            "value": false
+        },
+        "enableFireawll": {
+            "value": false
+        },
+        "enableBastion": {
+            "value": false
+        },
+        "virtualNetworkName": {
+            "value": ""
+        },
+        "virtualNetworkAddressSpace": {
+            "value": ""
+        },
+        "ManagementSubnetName": {
+            "value": "ManagementSubnet"
+        },
+        "ManagementSubnetAddressRange": {
+            "value": ""
+        },
+        "allowedRemoteAccessIpAddress": {
+            "value": ""
+        },
+        "DesktopSubnetName": {
+            "value": "DesktopSubnet"
+        },
+        "DesktopSubnetAddressRange": {
+            "value": ""
+        },
+        "AzureAddsSubnetAddressRange": {
+            "value": ""
+        },
+        "AzureFirewallSubnetAddressRange": {
+            "value": ""
+        },
+        "AzureBastionSubnetAddressRange": {
+            "value": ""
+        },
+        "AzureNetAppFilesSubnetAddressRange": {
+            "value": ""
+        },
+        "GatewaySubnetAddressRange": {
+            "value": ""
+        },
+        "AzureAaddsDomainName": {
+            "value": ""
+        },
+        "AzureAddsSku": {
+            "value": ""
+        },
+        "addsVmNamePrefix": {
+            "value": ""
+        },
+        "addsVmOsVersion": {
+            "value": "Windows Server 2019"
+        },
+        "addsVmRedundancy": {
+            "value": "false"
+        },
+        "addsVmDiskType": {
+            "value": "Standard SSD"
+        },
+        "addsVmLocalAdminUserName": {
+            "value": ""
+        },
+        "addsVmLocalAdminPassword": {
+            "value": ""
+        },
+        "aadcVmNamePrefix": {
+            "value": ""
+        },
+        "aadcVmOsVersion": {
+            "value": "Windows Server 2019"
+        },
+        "aadcVmRedundancy": {
+            "value": "false"
+        },
+        "aadcVmDiskType": {
+            "value": "Standard SSD"
+        },
+        "aadcVmLocalAdminUserName": {
+            "value": ""
+        },
+        "aadcVmLocalAdminPassword": {
+            "value": ""
+        },
+        "existAddsIpAddress": {
+            "value": ""
+        },
+        "vpnGatewayName": {
+            "value": ""
+        },
+        "vpnGatewaySku": {
+            "value": "VpnGw1"
+        },
+        "vpnGatewayRedundancy": {
+            "value": "false"
+        },
+        "vpnGatewayEnableBgp": {
+            "value": "false"
+        },
+        "vpnGatewayBgpAsn": {
+            "value": ""
+        },
+        "localGatewayName": {
+            "value": ""
+        },
+        "localGatewayGlobalIpAddress": {
+            "value": ""
+        },
+        "localGatewayPreSharedKey": {
+            "value": ""
+        },
+        "localGatewayPrivateIpRange": {
+            "value": ""
+        },
+        "localGatewayEnableBgp": {
+            "value": "false"
+        },
+        "localGatewayBgpAsn": {
+            "value": ""
+        },
+        "AzureBastionName": {
+            "value": ""
+        },
+        "AzureFirewallName": {
+            "value": ""
+        },
+        "smbVmNamePrefix": {
+            "value": ""
+        },
+        "smbVmOsVersion": {
+            "value": "Windows Server 2019"
+        },
+        "smbVmRedundancy": {
+            "value": "false"
+        },
+        "smbVmDiskType": {
+            "value": "Standard SSD"
+        },
+        "smbVmDataDiskSize": {
+            "value": 128
+        },
+        "smbVmLocalAdminUserName": {
+            "value": ""
+        },
+        "smbVmLocalAdminPassword": {
+            "value": ""
+        },
+        "_artifactsLocation": {
+            "value": "https://raw.githubusercontent.com/sny0421/wvd-deploy-template/master/"
+        },
+        "_artifactsLocationSasToken": {
+            "value": "https://raw.githubusercontent.com/sny0421/wvd-deploy-template/master/"
+        }
+    }
+}
