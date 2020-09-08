@@ -192,7 +192,7 @@
                     "ManagementSubnetName": { "value": "[parameters('ManagementSubnetName')]" },
                     "smbVmNamePrefix": { "value": "[parameters('smbVmNamePrefix')]" },
                     "smbVmOsVersion": { "value": "[variables('smbVmOsVesion')]" },
-                    "smbVmOsVesmbVmDiskType": { "value": "[variables('smbDiskType')]" },
+                    "smbVmDiskType": { "value": "[variables('smbDiskType')]" },
                     "smbVmDataDiskSize": { "value": "[parameters('smbVmDataDiskSize')]" },
                     "smbVmLocalAdminUserName": { "value": "[parameters('smbVmLocalAdminUserName')]" },
                     "git": { "value": "[parameters('smbVmLocalAdminPassword')]" }
