@@ -12,7 +12,7 @@
             "type": "string"
         },
         "smbVmOsVersion": {
-            "type": "bool"
+            "type": "string"
         },
         "smbVmDiskType": {
             "type": "string"
