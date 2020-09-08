@@ -199,7 +199,7 @@
                 }
             },
             "dependsOn": [
-                "LinkedWindowsServerAddsTemplate"
+                "LinkedAzureAddsTemplate"
             ]
         }
     ],
