@@ -195,7 +195,7 @@
                     "smbVmOsVesmbVmDiskType": { "value": "[variables('smbDiskType')]" },
                     "smbVmDataDiskSize": { "value": "[parameters('smbVmDataDiskSize')]" },
                     "smbVmLocalAdminUserName": { "value": "[parameters('smbVmLocalAdminUserName')]" },
-                    "smbVmLocalAdminPassword": { "value": "[parameters('smbVmLocalAdminPassword')]" }
+                    "git": { "value": "[parameters('smbVmLocalAdminPassword')]" }
                 }
             },
             "dependsOn": [
