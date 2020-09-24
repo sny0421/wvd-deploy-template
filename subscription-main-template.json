@@ -81,6 +81,7 @@
             "properties": {
                 "roleName": "CustomRoleDef",
                 "type": "string",
+                "isCustom": true,
                 "permissions": [
                     {
                         "actions": [
