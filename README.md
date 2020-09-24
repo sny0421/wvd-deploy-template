@@ -36,6 +36,6 @@
 New-AzSubscriptionDeployment `
   -Name wvdDemoDeployment `
   -Location japaneast `
-  -TemplateUri "https://raw.githubusercontent.com/sny0421/wvd-deploy/master/subscription-main-template.json" `
+  -TemplateUri "https://raw.githubusercontent.com/sny0421/wvd-deploy-template/master/subscription-main-template.json" `
   -prefixString WVD-DEMO
 ```
