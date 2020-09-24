@@ -75,11 +75,11 @@
             "properties": {}
         },
         {
-            "name": "[variables('customRoleDefinitionName')]",
+            "name": "CustomRoleDef",
             "type": "Microsoft.Authorization/roleDefinitions",
             "apiVersion": "2017-09-01",
             "properties": {
-                "roleName": "[variables('customRoleDefinitionName')]",
+                "roleName": "CustomRoleDef",
                 "type": "string",
                 "permissions": [
                     {
