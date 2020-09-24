@@ -42,36 +42,64 @@
         "coreResourceGroupName": "[concat(parameters('prefixString'),'-',parameters('coreResourceGroupSuffix'))]",
         "manageResourceGroupName": "[concat(parameters('prefixString'),'-',parameters('manageResourceGroupSuffix'))]",
         "goldenResourceGroupName": "[concat(parameters('prefixString'),'-',parameters('goldenResourceGroupSuffix'))]",
-        "hostpoolResourceGroupName": "[concat(parameters('prefixString'),'-',parameters('hostpoolResourceGroupSuffix'))]"
+        "hostpoolResourceGroupName": "[concat(parameters('prefixString'),'-',parameters('hostpoolResourceGroupSuffix'))]",
+        "customRoleDefinitionName": "[concat(parameters('prefixString'),'-AIB-CustomRoleDefinition')]"
     },
     "resources": [
         {
+            "name": "[variables('coreResourceGroupName')]",
             "type": "Microsoft.Resources/resourceGroups",
             "apiVersion": "2019-08-01",
-            "name": "[variables('coreResourceGroupName')]",
             "location": "[parameters('coreResourceGroupLocation')]",
             "properties": {}
         },
         {
+            "name": "[variables('manageResourceGroupName')]",
             "type": "Microsoft.Resources/resourceGroups",
             "apiVersion": "2019-08-01",
-            "name": "[variables('manageResourceGroupName')]",
             "location": "[parameters('manageResourceGroupLocation')]",
             "properties": {}
         },
         {
+            "name": "[variables('goldenResourceGroupName')]",
             "type": "Microsoft.Resources/resourceGroups",
             "apiVersion": "2019-08-01",
-            "name": "[variables('goldenResourceGroupName')]",
             "location": "[parameters('goldenResourceGroupLocation')]",
             "properties": {}
         },
         {
+            "name": "[variables('hostpoolResourceGroupName')]",
             "type": "Microsoft.Resources/resourceGroups",
             "apiVersion": "2019-08-01",
-            "name": "[variables('hostpoolResourceGroupName')]",
             "location": "[parameters('hostpoolResourceGroupLocation')]",
             "properties": {}
+        },
+        {
+            "name": "[variables('customRoleDefinitionName')]",
+            "type": "Microsoft.Authorization/roleDefinitions",
+            "apiVersion": "2017-09-01",
+            "properties": {
+                "roleName": "[variables('customRoleDefinitionName')]",
+                "type": "string",
+                "permissions": [
+                    {
+                        "actions": [
+                            "Microsoft.Compute/galleries/read",
+                            "Microsoft.Compute/galleries/images/read",
+                            "Microsoft.Compute/galleries/images/versions/read",
+                            "Microsoft.Compute/galleries/images/versions/write",
+                            "Microsoft.Compute/images/write",
+                            "Microsoft.Compute/images/read",
+                            "Microsoft.Compute/images/delete"
+                        ],
+                        "notActions": [
+                        ]
+                    }
+                ],
+                "assignableScopes": [
+                    "[subscriptionResourceId('Microsoft.Resources/resourceGroup/', variables('goldenResourceGroupName'))]"
+                ]
+            }
         }
     ],
     "outputs": {}
