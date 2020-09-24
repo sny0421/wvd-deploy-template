@@ -77,7 +77,7 @@
         {
             "name": "CustomRoleDef",
             "type": "Microsoft.Authorization/roleDefinitions",
-            "apiVersion": "2017-09-01",
+            "apiVersion": "2018-07-01",
             "properties": {
                 "roleName": "CustomRoleDef",
                 "type": "string",
