@@ -1,0 +1,78 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "prefixString": {
+            "type": "string"
+        },
+        "coreResourceGroupSuffix": {
+            "type": "string",
+            "defaultValue": "CORE-RG"
+        },
+        "coreResourceGroupLocation": {
+            "type": "string",
+            "defaultValue": "japaneast"
+        },
+        "manageResourceGroupSuffix": {
+            "type": "string",
+            "defaultValue": "MNG-RG"
+        },
+        "manageResourceGroupLocation": {
+            "type": "string",
+            "defaultValue": "japaneast"
+        },
+        "goldenResourceGroupSuffix": {
+            "type": "string",
+            "defaultValue": "GOLDEN-RG"
+        },
+        "goldenResourceGroupLocation": {
+            "type": "string",
+            "defaultValue": "japaneast"
+        },
+        "hostpoolResourceGroupSuffix": {
+            "type": "string",
+            "defaultValue": "HP-RG"
+        },
+        "hostpoolResourceGroupLocation": {
+            "type": "string",
+            "defaultValue": "japaneast"
+        }
+    },
+    "variables": {
+        "coreResourceGroupName": "[concat(parameters('prefixString'),'-',parameters('coreResourceGroupSuffix'))]",
+        "manageResourceGroupName": "[concat(parameters('prefixString'),'-',parameters('manageResourceGroupSuffix'))]",
+        "goldenResourceGroupName": "[concat(parameters('prefixString'),'-',parameters('goldenResourceGroupSuffix'))]",
+        "hostpoolResourceGroupName": "[concat(parameters('prefixString'),'-',parameters('hostpoolResourceGroupSuffix'))]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Resources/resourceGroups",
+            "apiVersion": "2019-08-01",
+            "name": "[variables('coreResourceGroupName')]",
+            "location": "[parameters('coreResourceGroupLocation')]",
+            "properties": {}
+        },
+        {
+            "type": "Microsoft.Resources/resourceGroups",
+            "apiVersion": "2019-08-01",
+            "name": "[variables('manageResourceGroupName')]",
+            "location": "[parameters('manageResourceGroupLocation')]",
+            "properties": {}
+        },
+        {
+            "type": "Microsoft.Resources/resourceGroups",
+            "apiVersion": "2019-08-01",
+            "name": "[variables('goldenResourceGroupName')]",
+            "location": "[parameters('goldenResourceGroupLocation')]",
+            "properties": {}
+        },
+        {
+            "type": "Microsoft.Resources/resourceGroups",
+            "apiVersion": "2019-08-01",
+            "name": "[variables('hostpoolResourceGroupName')]",
+            "location": "[parameters('hostpoolResourceGroupLocation')]",
+            "properties": {}
+        }
+    ],
+    "outputs": {}
+}

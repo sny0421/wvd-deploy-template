@@ -29,3 +29,13 @@
 5. VPN ゲートウェイ 展開
 7. ドメイン参加用ユーザー作成
 8. ファイルサーバー VM 展開
+
+
+## サブスクリプション単位の実行
+```
+New-AzSubscriptionDeployment `
+  -Name wvdDemoDeployment `
+  -Location japaneast `
+  -TemplateUri "https://raw.githubusercontent.com/sny0421/wvd-deploy/master/subscription-main-template.json" `
+  -prefixString WVD-DEMO
+```
