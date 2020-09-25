@@ -98,7 +98,7 @@
                     }
                 ],
                 "assignableScopes": [
-                    "[subscriptionResourceId('Microsoft.Resources/resourceGroup/', variables('goldenResourceGroupName'))]"
+                    "[concat(subscription().Id, '/resourceGroups', variables('goldenResourceGroupName'))]"
                 ]
             }
         }
