@@ -43,7 +43,7 @@
         "manageResourceGroupName": "[concat(parameters('prefixString'),'-',parameters('manageResourceGroupSuffix'))]",
         "goldenResourceGroupName": "[concat(parameters('prefixString'),'-',parameters('goldenResourceGroupSuffix'))]",
         "hostpoolResourceGroupName": "[concat(parameters('prefixString'),'-',parameters('hostpoolResourceGroupSuffix'))]",
-        "customRoleDefinitionName": "[concat(parameters('prefixString'),'-AIB-CustomRoleDefinition')]"
+        "customRoleDefinitionName": "[guid(subscription().id, string(parameters('prefixString')))]"
     },
     "resources": [
         {
@@ -79,7 +79,7 @@
             "type": "Microsoft.Authorization/roleDefinitions",
             "apiVersion": "2018-07-01",
             "properties": {
-                "roleName": "CustomRoleDef",
+                "roleName": "[variables('customRoleDefinitionName')]",
                 "type": "customRole",
                 "isCustom": true,
                 "permissions": [
