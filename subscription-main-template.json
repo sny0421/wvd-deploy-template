@@ -98,7 +98,7 @@
                     }
                 ],
                 "assignableScopes": [
-                    "[concat(subscription().Id, '/resourceGroups', variables('goldenResourceGroupName'))]"
+                    "[concat(subscription().Id, '/resourceGroups/', variables('goldenResourceGroupName'))]"
                 ]
             }
         }
