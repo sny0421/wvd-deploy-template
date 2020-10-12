@@ -1,0 +1,207 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "virtualNetworkName": {
+            "type": "string",
+            "defaultValue": "WVD-VNET",
+            "metadata": {
+                "description": "仮想ネットワークリソースの名前"
+            }
+        },
+        "virtualNetworkAddressSpace": {
+            "type": "string",
+            "defaultValue": "10.0.0.0/16",
+            "metadata": {
+                "description": "仮想ネットワークのアドレス空間"
+            }
+        },
+        "ManagementSubnetName": {
+            "type": "string",
+            "defaultValue": "ManagementSubnet",
+            "metadata": {
+                "description": "管理用コンポーネントを配置するサブネットの名前"
+            }
+        },
+        "ManagementSubnetAddressRange": {
+            "type": "string",
+            "defaultValue": "10.0.254.0/24",
+            "metadata": {
+                "description": "管理用コンポーネントを配置するサブネットのアドレス範囲"
+            }
+        },
+        "allowedRemoteAccessIpAddress": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "管理用にアクセスを許可する接続元 IP アドレス"
+            }
+        },
+        "DesktopSubnetName": {
+            "type": "string",
+            "defaultValue": "DesktopSubnet",
+            "metadata": {
+                "description": "WVD セッションホストを配置するサブネットの名前"
+            }
+        },
+        "DesktopSubnetAddressRange": {
+            "type": "string",
+            "defaultValue": "10.0.0.0/22",
+            "metadata": {
+                "description": "WVD セッションホストを配置するサブネットのアドレス範囲"
+            }
+        },
+        "AzureAddsSubnetAddressRange": {
+            "type": "string",
+            "defaultValue": "10.0.255.0/28",
+            "metadata": {
+                "description": "Azure AD Domain Service を配置するサブネットのアドレス範囲"
+            }
+        },
+        "AzureAaddsDomainName": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Azure ADDS で利用するドメイン名(プレフィックスは15文字以内)"
+            }
+        },
+        "smbVmNamePrefix": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "AADC VM の名前プレフィックス"
+            }
+        },
+        "smbWindowsVersion": {
+            "type": "string",
+            "defaultValue": "Windows Server 2019",
+            "allowedValues": [
+                "Windows Server 2019",
+                "Windows Server 2016"
+            ],
+            "metadata": {
+                "description": ""
+            }
+        },
+        "smbVmDiskType": {
+            "type": "string",
+            "defaultValue": "Standard SSD",
+            "allowedValues": [
+                "Standard HDD",
+                "Standard SSD",
+                "Premuim SSD"
+            ],
+            "metadata": {
+                "description": ""
+            }
+        },
+        "smbVmDataDiskSize": {
+            "type": "int",
+            "defaultValue": 256,
+            "metadata": {
+                "description": ""
+            }
+        },
+        "smbVmLocalAdminUserName": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "SMB VM のローカル管理者ユーザーの名前"
+            }
+        },
+        "smbVmLocalAdminPassword": {
+            "type": "securestring",
+            "defaultValue": "",
+            "metadata": {
+                "description": "SMB VM のローカル管理者ユーザーのパスワード"
+            }
+        },
+        "_artifactsLocation": {
+            "type": "securestring",
+            "defaultValue": "https://raw.githubusercontent.com/sny0421/wvd-deploy-template/master/",
+            "metadata": {
+                "description": "このテンプレートに必要なアーティファクトのベース URI"
+            }
+        },
+        "_artifactsLocationSasToken": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "このテンプレートに必要なアーティファクトのベース URI"
+            }
+        }    },
+    "functions": [],
+    "variables": {
+        "smbVmOsVesion": "[if(equals(parameters('smbWindowsVersion'),'Windows Server 2019'), '2019-Datacenter', '2016-Datacenter')]",
+        "smbDiskType": "[if(equals(parameters('smbVmDiskType'),'Premuim SSD'), 'Premuim_SSD', if(equals(parameters('smbVmDiskType'),'Standard SSD'), 'Standard_SSD', 'Standard_HDD'))]"
+    },
+    "resources": [
+        {
+            "name": "LinkedNetworkTemplate",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(parameters('_artifactsLocation'), 'linkedTemplates/linkedNetworkTemplate.json', parameters('_artifactsLocationSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "virtualNetworkName": { "value": "[parameters('virtualNetworkName')]" },
+                    "virtualNetworkAddressSpace": { "value": "[parameters('virtualNetworkAddressSpace')]" },
+                    "ManagementSubnetName": { "value": "[parameters('ManagementSubnetName')]" },
+                    "ManagementSubnetAddressRange": { "value": "[parameters('ManagementSubnetAddressRange')]" },
+                    "allowedRemoteAccessIpAddress": { "value": "[parameters('allowedRemoteAccessIpAddress')]" },
+                    "DesktopSubnetName": { "value": "[parameters('DesktopSubnetName')]" },
+                    "DesktopSubnetAddressRange": { "value": "[parameters('DesktopSubnetAddressRange')]" }
+                }
+            }
+        },
+        {
+            "name": "LinkedAzureAddsTemplate",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(parameters('_artifactsLocation'), 'linkedTemplates/linkedAzureAddsTemplate.json', parameters('_artifactsLocationSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "virtualNetworkName": { "value": "[parameters('virtualNetworkName')]" },
+                    "AzureAddsSubnetAddressRange": { "value": "[parameters('AzureAddsSubnetAddressRange')]" },
+                    "AzureAaddsDomainName": { "value": "[parameters('AzureAaddsDomainName')]" }
+                }
+            },
+            "dependsOn": [
+                "LinkedNetworkTemplate"
+            ]
+        },
+        {
+            "name": "LinkedWindowsServerSmbTemplate",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(parameters('_artifactsLocation'), 'linkedTemplates/linkedWindowsServerSmbTemplate.json', parameters('_artifactsLocationSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "virtualNetworkName": { "value": "[parameters('virtualNetworkName')]" },
+                    "ManagementSubnetName": { "value": "[parameters('ManagementSubnetName')]" },
+                    "smbVmNamePrefix": { "value": "[parameters('smbVmNamePrefix')]" },
+                    "smbVmOsVersion": { "value": "[variables('smbVmOsVesion')]" },
+                    "smbVmDiskType": { "value": "[variables('smbDiskType')]" },
+                    "smbVmDataDiskSize": { "value": "[parameters('smbVmDataDiskSize')]" },
+                    "smbVmLocalAdminUserName": { "value": "[parameters('smbVmLocalAdminUserName')]" },
+                    "smbVmLocalAdminPassword": { "value": "[parameters('smbVmLocalAdminPassword')]" }
+                }
+            },
+            "dependsOn": [
+                "LinkedAzureAddsTemplate"
+            ]
+        }
+    ],
+    "outputs": {}
+}

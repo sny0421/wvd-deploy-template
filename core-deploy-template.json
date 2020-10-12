@@ -138,18 +138,6 @@
                 "description": "Azure ADDS で利用するドメイン名(プレフィックスは15文字以内)"
             }
         },
-        "AzureAddsSku": {
-            "type": "string",
-            "defaultValue": "",
-            "allowedValues": [
-                "Standard",
-                "Enterprise",
-                "Premium"
-            ],
-            "metadata": {
-                "description": "AD 構成を選択する"
-            }
-        },
         "addsVmNamePrefix": {
             "type": "string",
             "defaultValue": "",
