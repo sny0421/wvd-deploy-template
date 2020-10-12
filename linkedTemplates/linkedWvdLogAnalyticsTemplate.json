@@ -1,0 +1,586 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "workspaceName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the workspace."
+            }
+        },
+        "location": {
+            "type": "string",
+            "metadata": {
+              "description": "Location of the workspace."
+            }
+        },
+        "interval": {
+            "type": "int",
+            "defaultValue": 60,
+            "metadata": {
+                "description": "Interval time of collection log"
+            }
+        }
+    },
+    "resources": [
+    {
+        "apiVersion": "2020-08-01",
+        "type": "Microsoft.OperationalInsights/workspaces",
+        "name": "[parameters('workspaceName')]",
+        "location": "[parameters('location')]",
+        "properties": {
+            "sku": {
+                "name": "pergb2018"
+            },
+            "retentionInDays": 30,
+            "workspaceCapping": {
+                "dailyQuotaGb": -1
+            },
+            "publicNetworkAccessForIngestion": "Enabled",
+            "publicNetworkAccessForQuery": "Enabled"
+        },
+        "resources": [
+          {
+            "apiVersion": "2020-08-01",
+            "type": "datasources",
+            "name": "WindowsPerfTerminalServicesSessionProcessorTime",
+            "dependsOn": [
+              "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+            ],
+            "kind": "WindowsPerformanceCounter",
+            "properties": {
+              "objectName": "Terminal Services Session",
+              "instanceName": "*",
+              "intervalSeconds": "[parameters('interval')]",
+              "counterName": "% Processor Time"
+            }
+          },
+          {
+            "apiVersion": "2020-08-01",
+            "type": "datasources",
+            "name": "WindowsPerfTerminalServicesSessionActiveSessions",
+            "dependsOn": [
+              "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+            ],
+            "kind": "WindowsPerformanceCounter",
+            "properties": {
+              "objectName": "Terminal Services Session",
+              "instanceName": "*",
+              "intervalSeconds": "[parameters('interval')]",
+              "counterName": "Active Sessions"
+            }
+          },
+          {
+            "apiVersion": "2020-08-01",
+            "type": "datasources",
+            "name": "WindowsPerfTerminalServicesSessionInactiveSessions",
+            "dependsOn": [
+              "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+            ],
+            "kind": "WindowsPerformanceCounter",
+            "properties": {
+              "objectName": "Terminal Services Session",
+              "instanceName": "*",
+              "intervalSeconds": "[parameters('interval')]",
+              "counterName": "Inactive Sessions"
+            }
+          },
+          {
+            "apiVersion": "2020-08-01",
+            "type": "datasources",
+            "name": "WindowsPerfTerminalServicesSessionTotalSessions",
+            "dependsOn": [
+              "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+            ],
+            "kind": "WindowsPerformanceCounter",
+            "properties": {
+              "objectName": "Terminal Services Session",
+              "instanceName": "*",
+              "intervalSeconds": "[parameters('interval')]",
+              "counterName": "Total Sessions"
+            }
+          },
+          {
+            "apiVersion": "2020-08-01",
+            "type": "datasources",
+            "name": "WindowsPerfLogicalDiskFreeSpace",
+            "dependsOn": [
+              "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+            ],
+            "kind": "WindowsPerformanceCounter",
+            "properties": {
+              "objectName": "LogicalDisk",
+              "instanceName": "*",
+              "intervalSeconds": "[parameters('interval')]",
+              "counterName": "% Free Space"
+            }
+          },
+          {
+            "apiVersion": "2020-08-01",
+            "type": "datasources",
+            "name": "WindowsPerfLogicalDiskAvgDiskSecPerRead",
+            "dependsOn": [
+              "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+            ],
+            "kind": "WindowsPerformanceCounter",
+            "properties": {
+              "objectName": "LogicalDisk",
+              "instanceName": "*",
+              "intervalSeconds": "[parameters('interval')]",
+              "counterName": "Avg. Disk sec/Read"
+            }
+          },
+          {
+            "apiVersion": "2020-08-01",
+            "type": "datasources",
+            "name": "WindowsPerfLogicalDiskAvgDiskSecPerWrite",
+            "dependsOn": [
+              "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+            ],
+            "kind": "WindowsPerformanceCounter",
+            "properties": {
+              "objectName": "LogicalDisk",
+              "instanceName": "*",
+              "intervalSeconds": "[parameters('interval')]",
+              "counterName": "Avg. Disk sec/Write"
+            }
+          },
+          {
+            "apiVersion": "2020-08-01",
+            "type": "datasources",
+            "name": "WindowsPerfLogicalDiskCurrentDiskQueueLength",
+            "dependsOn": [
+              "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+            ],
+            "kind": "WindowsPerformanceCounter",
+            "properties": {
+              "objectName": "LogicalDisk",
+              "instanceName": "*",
+              "intervalSeconds": "[parameters('interval')]",
+              "counterName": "Current Disk Queue Length"
+            }
+          },
+          {
+            "apiVersion": "2020-08-01",
+            "type": "datasources",
+            "name": "WindowsPerfLogicalDiskDiskReadsPerSec",
+            "dependsOn": [
+              "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+            ],
+            "kind": "WindowsPerformanceCounter",
+            "properties": {
+              "objectName": "LogicalDisk",
+              "instanceName": "*",
+              "intervalSeconds": "[parameters('interval')]",
+              "counterName": "Disk Reads/sec"
+            }
+          },
+          {
+            "apiVersion": "2020-08-01",
+            "type": "datasources",
+            "name": "WindowsPerfLogicalDiskDiskTransfersPerSec",
+            "dependsOn": [
+              "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+            ],
+            "kind": "WindowsPerformanceCounter",
+            "properties": {
+              "objectName": "LogicalDisk",
+              "instanceName": "*",
+              "intervalSeconds": "[parameters('interval')]",
+              "counterName": "Disk Transfers/sec"
+            }
+          },
+          {
+            "apiVersion": "2020-08-01",
+            "type": "datasources",
+            "name": "WindowsPerfLogicalDiskDiskWritesPerSec",
+            "dependsOn": [
+              "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+            ],
+            "kind": "WindowsPerformanceCounter",
+            "properties": {
+              "objectName": "LogicalDisk",
+              "instanceName": "*",
+              "intervalSeconds": "[parameters('interval')]",
+              "counterName": "Disk Writes/sec"
+            }
+          },
+          {
+            "apiVersion": "2020-08-01",
+            "type": "datasources",
+            "name": "WindowsPerfLogicalDiskFreeMegabytes",
+            "dependsOn": [
+              "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+            ],
+            "kind": "WindowsPerformanceCounter",
+            "properties": {
+              "objectName": "LogicalDisk",
+              "instanceName": "*",
+              "intervalSeconds": "[parameters('interval')]",
+              "counterName": "Free Megabytes"
+            }
+          },
+          {
+            "apiVersion": "2020-08-01",
+            "type": "datasources",
+            "name": "WindowsPerfProcessorProcessorTime",
+            "dependsOn": [
+              "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+            ],
+            "kind": "WindowsPerformanceCounter",
+            "properties": {
+              "objectName": "Processor",
+              "instanceName": "_Total",
+              "intervalSeconds": "[parameters('interval')]",
+              "counterName": "% Processor Time"
+            }
+          },
+          {
+            "apiVersion": "2020-08-01",
+            "type": "datasources",
+            "name": "WindowsPerfMemoryCommittedBytesInUse",
+            "dependsOn": [
+              "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+            ],
+            "kind": "WindowsPerformanceCounter",
+            "properties": {
+              "objectName": "Memory",
+              "instanceName": "*",
+              "intervalSeconds": "[parameters('interval')]",
+              "counterName": "% Committed Bytes In Use"
+            }
+          },
+          {
+            "apiVersion": "2020-08-01",
+            "type": "datasources",
+            "name": "WindowsPerfNetworkAdapterBytesReceivedPerSec",
+            "dependsOn": [
+              "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+            ],
+            "kind": "WindowsPerformanceCounter",
+            "properties": {
+              "objectName": "Network Adapter",
+              "instanceName": "*",
+              "intervalSeconds": "[parameters('interval')]",
+              "counterName": "Bytes Received/sec"
+            }
+          },
+          {
+            "apiVersion": "2020-08-01",
+            "type": "datasources",
+            "name": "WindowsPerfNetworkAdapterBytesSentPerSec",
+            "dependsOn": [
+              "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+            ],
+            "kind": "WindowsPerformanceCounter",
+            "properties": {
+              "objectName": "Network Adapter",
+              "instanceName": "*",
+              "intervalSeconds": "[parameters('interval')]",
+              "counterName": "Bytes Sent/sec"
+            }
+          },
+          {
+            "apiVersion": "2020-08-01",
+            "type": "datasources",
+            "name": "WindowsPerfProcessProcessorTime",
+            "dependsOn": [
+              "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+            ],
+            "kind": "WindowsPerformanceCounter",
+            "properties": {
+              "objectName": "Process",
+              "instanceName": "*",
+              "intervalSeconds": "[parameters('interval')]",
+              "counterName": "% Processor Time"
+            }
+          },
+          {
+            "apiVersion": "2020-08-01",
+            "type": "datasources",
+            "name": "WindowsPerfProcessUserTime",
+            "dependsOn": [
+              "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+            ],
+            "kind": "WindowsPerformanceCounter",
+            "properties": {
+              "objectName": "Process",
+              "instanceName": "*",
+              "intervalSeconds": "[parameters('interval')]",
+              "counterName": "% User Time"
+            }
+          },
+          {
+            "apiVersion": "2020-08-01",
+            "type": "datasources",
+            "name": "WindowsPerfProcessIOReadOperationsPerSec",
+            "dependsOn": [
+              "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+            ],
+            "kind": "WindowsPerformanceCounter",
+            "properties": {
+              "objectName": "Process",
+              "instanceName": "*",
+              "intervalSeconds": "[parameters('interval')]",
+              "counterName": "IO Read Operations/sec"
+            }
+          },
+          {
+            "apiVersion": "2020-08-01",
+            "type": "datasources",
+            "name": "WindowsPerfProcessIOWriteOperationsPerSec",
+            "dependsOn": [
+              "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+            ],
+            "kind": "WindowsPerformanceCounter",
+            "properties": {
+              "objectName": "Process",
+              "instanceName": "*",
+              "intervalSeconds": "[parameters('interval')]",
+              "counterName": "IO Write Operations/sec"
+            }
+          },
+          {
+            "apiVersion": "2020-08-01",
+            "type": "datasources",
+            "name": "WindowsPerfProcessThreadCount",
+            "dependsOn": [
+              "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+            ],
+            "kind": "WindowsPerformanceCounter",
+            "properties": {
+              "objectName": "Process",
+              "instanceName": "*",
+              "intervalSeconds": "[parameters('interval')]",
+              "counterName": "Thread Count"
+            }
+          },
+          {
+            "apiVersion": "2020-08-01",
+            "type": "datasources",
+            "name": "WindowsPerfProcessWorkingSet",
+            "dependsOn": [
+              "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+            ],
+            "kind": "WindowsPerformanceCounter",
+            "properties": {
+              "objectName": "Process",
+              "instanceName": "*",
+              "intervalSeconds": "[parameters('interval')]",
+              "counterName": "Working Set"
+            }
+          },
+          {
+            "apiVersion": "2020-08-01",
+            "type": "datasources",
+            "name": "WindowsPerfRemoteFXGraphicsAverageEncodingTime",
+            "dependsOn": [
+              "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+            ],
+            "kind": "WindowsPerformanceCounter",
+            "properties": {
+              "objectName": "RemoteFX Graphics",
+              "instanceName": "*",
+              "intervalSeconds": "[parameters('interval')]",
+              "counterName": "Average Encoding Time"
+            }
+          },
+          {
+            "apiVersion": "2020-08-01",
+            "type": "datasources",
+            "name": "WindowsPerfRemoteFXGraphicsFramesSkippedPerSecondInsufficientClientResources",
+            "dependsOn": [
+              "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+            ],
+            "kind": "WindowsPerformanceCounter",
+            "properties": {
+              "objectName": "RemoteFX Graphics",
+              "instanceName": "*",
+              "intervalSeconds": "[parameters('interval')]",
+              "counterName": "Frames Skipped/Second – Insufficient Client Resources"
+            }
+          },
+          {
+            "apiVersion": "2020-08-01",
+            "type": "datasources",
+            "name": "WindowsPerfRemoteFXGraphicsFramesSkippedPerSecondInsufficientNetworkResources",
+            "dependsOn": [
+              "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+            ],
+            "kind": "WindowsPerformanceCounter",
+            "properties": {
+              "objectName": "RemoteFX Graphics",
+              "instanceName": "*",
+              "intervalSeconds": "[parameters('interval')]",
+              "counterName": "Frames Skipped/Second – Insufficient Network Resources"
+            }
+          },
+          {
+            "apiVersion": "2020-08-01",
+            "type": "datasources",
+            "name": "WindowsPerfRemoteFXGraphicsFramesSkippedPerSecondInsufficientServerResources",
+            "dependsOn": [
+              "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+            ],
+            "kind": "WindowsPerformanceCounter",
+            "properties": {
+              "objectName": "RemoteFX Graphics",
+              "instanceName": "*",
+              "intervalSeconds": "[parameters('interval')]",
+              "counterName": "Frames Skipped/Second – Insufficient Server Resources"
+            }
+          },
+          {
+            "apiVersion": "2020-08-01",
+            "type": "datasources",
+            "name": "WindowsPerfRemoteFXNetworkCurrentTCPBandwidth",
+            "dependsOn": [
+              "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+            ],
+            "kind": "WindowsPerformanceCounter",
+            "properties": {
+              "objectName": "RemoteFX Network",
+              "instanceName": "*",
+              "intervalSeconds": "[parameters('interval')]",
+              "counterName": "Current TCP Bandwidth"
+            }
+          },
+          {
+            "apiVersion": "2020-08-01",
+            "type": "datasources",
+            "name": "WindowsPerfRemoteFXNetworkCurrentTCPRTT",
+            "dependsOn": [
+              "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+            ],
+            "kind": "WindowsPerformanceCounter",
+            "properties": {
+              "objectName": "RemoteFX Network",
+              "instanceName": "*",
+              "intervalSeconds": "[parameters('interval')]",
+              "counterName": "Current TCP RTT"
+            }
+          },
+          {
+            "apiVersion": "2020-08-01",
+            "type": "datasources",
+            "name": "WindowsPerfRemoteFXNetworkCurrentUDPBandwidth",
+            "dependsOn": [
+              "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+            ],
+            "kind": "WindowsPerformanceCounter",
+            "properties": {
+              "objectName": "RemoteFX Network",
+              "instanceName": "*",
+              "intervalSeconds": "[parameters('interval')]",
+              "counterName": "Current UDP Bandwidth"
+            }
+          },
+          {
+            "apiVersion": "2020-08-01",
+            "type": "datasources",
+            "name": "WindowsPerfRemoteFXNetworkCurrentUDPRTT",
+            "dependsOn": [
+              "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+            ],
+            "kind": "WindowsPerformanceCounter",
+            "properties": {
+              "objectName": "RemoteFX Network",
+              "instanceName": "*",
+              "intervalSeconds": "[parameters('interval')]",
+              "counterName": "Current UDP RTT"
+            }
+          },
+          {
+            "apiVersion": "2020-08-01",
+            "type": "datasources",
+            "name": "WindowsPerfPhysicalDiskAvgDiskBytesPerRead",
+            "dependsOn": [
+              "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+            ],
+            "kind": "WindowsPerformanceCounter",
+            "properties": {
+              "objectName": "PhysicalDisk",
+              "instanceName": "*",
+              "intervalSeconds": "[parameters('interval')]",
+              "counterName": "Avg. Disk Bytes/Read"
+            }
+          },
+          {
+            "apiVersion": "2020-08-01",
+            "type": "datasources",
+            "name": "WindowsPerfPhysicalDiskAvgDiskBytesPerWrite",
+            "dependsOn": [
+              "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+            ],
+            "kind": "WindowsPerformanceCounter",
+            "properties": {
+              "objectName": "PhysicalDisk",
+              "instanceName": "*",
+              "intervalSeconds": "[parameters('interval')]",
+              "counterName": "Avg. Disk Bytes/Write"
+            }
+          },
+          {
+            "apiVersion": "2020-08-01",
+            "type": "datasources",
+            "name": "WindowsPerfPhysicalDiskAvgDiskSecPerWrite",
+            "dependsOn": [
+              "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+            ],
+            "kind": "WindowsPerformanceCounter",
+            "properties": {
+              "objectName": "PhysicalDisk",
+              "instanceName": "*",
+              "intervalSeconds": "[parameters('interval')]",
+              "counterName": "Avg. Disk sec/Write"
+            }
+          },
+          {
+            "apiVersion": "2020-08-01",
+            "type": "datasources",
+            "name": "WindowsPerfPhysicalDiskAvgDiskSecPerRead",
+            "dependsOn": [
+              "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+            ],
+            "kind": "WindowsPerformanceCounter",
+            "properties": {
+              "objectName": "PhysicalDisk",
+              "instanceName": "*",
+              "intervalSeconds": "[parameters('interval')]",
+              "counterName": "Avg. Disk sec/Read"
+            }
+          },
+          {
+            "apiVersion": "2020-08-01",
+            "type": "datasources",
+            "name": "WindowsPerfPhysicalDiskAvgDiskBytesPerTransfer",
+            "dependsOn": [
+              "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+            ],
+            "kind": "WindowsPerformanceCounter",
+            "properties": {
+              "objectName": "PhysicalDisk",
+              "instanceName": "*",
+              "intervalSeconds": "[parameters('interval')]",
+              "counterName": "Avg. Disk Bytes/Transfer"
+            }
+          },
+          {
+            "apiVersion": "2020-08-01",
+            "type": "datasources",
+            "name": "WindowsPerfPhysicalDiskAvgDiskSecPerTransfer",
+            "dependsOn": [
+              "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+            ],
+            "kind": "WindowsPerformanceCounter",
+            "properties": {
+              "objectName": "PhysicalDisk",
+              "instanceName": "*",
+              "intervalSeconds": "[parameters('interval')]",
+              "counterName": "Avg. Disk sec/Transfer"
+            }
+          }
+        ]
+      }
+    ]
+}
